@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.1",
+    "firebase": "^8.10.1",
+    "firebase-tools": "^13.27.0",
+    "nodemon": "^3.1.7"
+  }
+}
