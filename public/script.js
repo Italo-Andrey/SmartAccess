@@ -1,3 +1,41 @@
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js';
+import { getFirestore, doc, setDoc, collection } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js';
+
+const firebaseConfig = {
+    apiKey: "AIzaSyA_CJCyRKFpSab4bybDNYgVGsCOtzJSXbk",
+    authDomain: "smartaccess-88ec0.firebaseapp.com",
+    databaseURL: "https://smartaccess-88ec0-default-rtdb.firebaseio.com",
+    projectId: "smartaccess-88ec0",
+    storageBucket: "smartaccess-88ec0.firebasestorage.app",
+    messagingSenderId: "685539814365",
+    appId: "1:685539814365:web:0df58c59485e03b210e434",
+    measurementId: "G-8QQG3R6CRH"
+};
+
+// Inicializando o Firebase
+const firebaseApp = initializeApp(firebaseConfig);
+
+// Acessando o Firestore
+const db = getFirestore(firebaseApp);
+
+// Função para salvar dados no Firestore
+async function saveClientData(data) {
+    try {
+        // Salva os dados no Firestore
+        const Client = collection(db,"Cliente");
+        await setDoc(doc(Client, data.nome_cliente), data, { merge: true });
+
+        // Após salvar, exibe uma mensagem de sucesso e redireciona
+        console.log("Documento salvo com sucesso");
+        return true;
+    } catch (erro) {
+        // Em caso de erro, exibe uma mensagem
+        console.error("Erro ao salvar documento:", erro);
+        return false;
+    }
+}
+
+
 document.addEventListener("DOMContentLoaded", function () {
     const formCadastro = document.getElementById('formCadastro');
 
@@ -22,7 +60,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 localStorage.setItem('clientData', JSON.stringify(clientData));
     
                 // Redireciona para o endpoint de cadastro da tag
-                window.location.href = '/cadastro-tag';  // Redireciona para o endpoint desejado
+                window.location.href = 'cadastro_tag.html';  // Redireciona para o endpoint desejado
             });
         }
     }
@@ -31,7 +69,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (formTag) {
         // Verifica se estamos na página de cadastro de tag
-        if (window.location.pathname.includes('cadastro-tag')) {
+        if (window.location.pathname.includes('cadastro_tag')) {
     
             // Quando o formulário de cadastro de tag for submetido
             formTag.addEventListener('submit', function (event) {
@@ -57,42 +95,19 @@ document.addEventListener("DOMContentLoaded", function () {
                 console.log("Dados armazenados no localStorage:", clientData);
 
                 //fluxo de cadastro no banco de dados com o endpoint /create
-                const myHeaders = new Headers();
-                myHeaders.append("Content-Type", "application/json");
-
-                const requestOptions = {
-                    method: "POST",
-                    headers: myHeaders,
-                    body: JSON.stringify(JSON.parse(localStorage.getItem('clientData'))), //DADOS DO LOCAL STORAGE
-                    redirect: "follow"
-                };
-
-                fetch("http://localhost:4000/create", requestOptions)
-                .then(response => {
-                    // Verifica se o status da resposta é 202 (Accepted)
-                    if (response.status === 202) {
-                        return response.text(); // Se o status for 202, continua o fluxo e obtém a resposta como texto
-                    } else {
-                        // Se o status não for 202, tenta pegar o corpo da resposta (pode ser JSON ou texto)
-                        return response.text().then(errorMessage => {
-                            throw new Error(response.status + ' - ' + errorMessage);
-                        });
-                    }
-                })
-                .then(result => {
-                    console.log(result);
-                    alert("Cadastro feito com sucesso");
-                    localStorage.removeItem('clientData'); // Limpa os dados do cliente após o envio
-                    window.location.href = '/';  // Redireciona de volta para o início
-                })
-                .catch(error => {
-                    console.error("Erro:", error);
-                    // localStorage.removeItem('clientData'); // Limpa os dados do cliente após o envio
-                    alert("Falha ao fazer o cadastro. Tente novamente.");
-                });
+                const data = JSON.parse(localStorage.getItem('clientData'));
+                if(saveClientData(data)){
+                    alert("Cadastro feito com sucesso!");
+                }
+                else{
+                    alert("Cadastro não finalizado!");
+                }
 
             });
         }
     }
 
 });
+
+
+
